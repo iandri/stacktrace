@@ -176,6 +176,13 @@ func GetCode(err error) ErrorCode {
 	return NoCode
 }
 
+func GetCause(err error) error {
+	if err, ok := err.(*Stacktrace); ok {
+		return err.cause
+	}
+	return err
+}
+
 type Stacktrace struct {
 	message  string
 	cause    error
