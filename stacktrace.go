@@ -183,6 +183,13 @@ func GetCause(err error) error {
 	return err
 }
 
+func GetMessage(err error) error {
+	if err, ok := err.(*Stacktrace); ok {
+		return fmt.Errorf(err.Message)
+	}
+	return err
+}
+
 type Stacktrace struct {
 	Message  string
 	Cause    error
