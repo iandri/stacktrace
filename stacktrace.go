@@ -24,13 +24,13 @@ import (
 )
 
 /*
-CleanPath function is applied to file paths before adding them to a stacktrace.
+CleanPath function is applied to file paths before adding them to a Stacktrace.
 By default, it makes the path relative to the $GOPATH environment variable.
 
 To remove some additional prefix like "github.com" from file paths in
 stacktraces, use something like:
 
-	stacktrace.CleanPath = func(path string) string {
+	Stacktrace.CleanPath = func(path string) string {
 		path = cleanpath.RemoveGoPath(path)
 		path = strings.TrimPrefix(path, "github.com/")
 		return path
@@ -43,7 +43,7 @@ NewError is a drop-in replacement for fmt.Errorf that includes line number
 information. The canonical call looks like this:
 
 	if !IsOkay(arg) {
-		return stacktrace.NewError("Expected %v to be okay", arg)
+		return Stacktrace.NewError("Expected %v to be okay", arg)
 	}
 */
 func NewError(msg string, vals ...interface{}) error {
@@ -59,7 +59,7 @@ resulting in the cause. The canonical call looks like this:
 
 	result, err := process(arg)
 	if err != nil {
-		return nil, stacktrace.Propagate(err, "Failed to process %v", arg)
+		return nil, Stacktrace.Propagate(err, "Failed to process %v", arg)
 	}
 
 To write the message, ask yourself "what does this call do?" What does
@@ -75,7 +75,7 @@ included in an error, msg can be an empty string:
 		defer mutex.Unlock()
 
 		err := reallySomething()
-		return stacktrace.Propagate(err, "")
+		return Stacktrace.Propagate(err, "")
 	}
 
 If cause is nil, Propagate returns nil. This allows elision of some "if err !=
@@ -97,7 +97,7 @@ There is no predefined set of error codes. You define the ones relevant to your
 application:
 
 	const (
-		EcodeManifestNotFound = stacktrace.ErrorCode(iota)
+		EcodeManifestNotFound = Stacktrace.ErrorCode(iota)
 		EcodeBadInput
 		EcodeTimeout
 	)
@@ -105,7 +105,7 @@ application:
 The one predefined error code is NoCode, which has a value of math.MaxUint16.
 Avoid using that value as an error code.
 
-An ordinary stacktrace.Propagate call preserves the error code of an error.
+An ordinary Stacktrace.Propagate call preserves the error code of an error.
 */
 type ErrorCode uint16
 
@@ -126,7 +126,7 @@ PropagateWithCode is similar to Propagate but also attaches an error code.
 
 	_, err := os.Stat(manifestPath)
 	if os.IsNotExist(err) {
-		return stacktrace.PropagateWithCode(err, EcodeManifestNotFound, "")
+		return Stacktrace.PropagateWithCode(err, EcodeManifestNotFound, "")
 	}
 */
 func PropagateWithCode(cause error, code ErrorCode, msg string, vals ...interface{}) error {
@@ -144,11 +144,11 @@ itself even where stack traces with line numbers are not warranted.
 
 	ttl := req.URL.Query().Get("ttl")
 	if ttl == "" {
-		return 0, stacktrace.NewMessageWithCode(EcodeBadInput, "Missing ttl query parameter")
+		return 0, Stacktrace.NewMessageWithCode(EcodeBadInput, "Missing ttl query parameter")
 	}
 */
 func NewMessageWithCode(code ErrorCode, msg string, vals ...interface{}) error {
-	return &stacktrace{
+	return &Stacktrace{
 		message: fmt.Sprintf(msg, vals...),
 		code:    code,
 	}
@@ -159,24 +159,24 @@ GetCode extracts the error code from an error.
 
 	for i := 0; i < attempts; i++ {
 		err := Do()
-		if stacktrace.GetCode(err) != EcodeTimeout {
+		if Stacktrace.GetCode(err) != EcodeTimeout {
 			return err
 		}
 		// try a few more times
 	}
-	return stacktrace.NewError("timed out after %d attempts", attempts)
+	return Stacktrace.NewError("timed out after %d attempts", attempts)
 
-GetCode returns the special value stacktrace.NoCode if err is nil or if there is
+GetCode returns the special value Stacktrace.NoCode if err is nil or if there is
 no error code attached to err.
 */
 func GetCode(err error) ErrorCode {
-	if err, ok := err.(*stacktrace); ok {
+	if err, ok := err.(*Stacktrace); ok {
 		return err.code
 	}
 	return NoCode
 }
 
-type stacktrace struct {
+type Stacktrace struct {
 	message  string
 	cause    error
 	code     ErrorCode
@@ -191,7 +191,7 @@ func create(cause error, code ErrorCode, msg string, vals ...interface{}) error 
 		code = GetCode(cause)
 	}
 
-	err := &stacktrace{
+	err := &Stacktrace{
 		message: fmt.Sprintf(msg, vals...),
 		cause:   cause,
 		code:    code,
@@ -235,13 +235,13 @@ func shortFuncName(f *runtime.Func) string {
 	return shortName
 }
 
-func (st *stacktrace) Error() string {
+func (st *Stacktrace) Error() string {
 	return fmt.Sprint(st)
 }
 
-// ExitCode returns the exit code associated with the stacktrace error based on its error code. If the error code is
+// ExitCode returns the exit code associated with the Stacktrace error based on its error code. If the error code is
 // NoCode, return 1 (default); otherwise, returns the value of the error code.
-func (st *stacktrace) ExitCode() int {
+func (st *Stacktrace) ExitCode() int {
 	if st.code == NoCode {
 		return 1
 	}

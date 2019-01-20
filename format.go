@@ -20,38 +20,38 @@ import (
 )
 
 /*
-DefaultFormat defines the behavior of err.Error() when called on a stacktrace,
+DefaultFormat defines the behavior of err.Error() when called on a Stacktrace,
 as well as the default behavior of the "%v", "%s" and "%q" formatting
-specifiers. By default, all of these produce a full stacktrace including line
+specifiers. By default, all of these produce a full Stacktrace including line
 number information. To have them produce a condensed single-line output, set
-this value to stacktrace.FormatBrief.
+this value to Stacktrace.FormatBrief.
 
-The formatting specifier "%+s" can be used to force a full stacktrace regardless
+The formatting specifier "%+s" can be used to force a full Stacktrace regardless
 of the value of DefaultFormat. Similarly, the formatting specifier "%#s" can be
 used to force a brief output.
 */
 var DefaultFormat = FormatFull
 
-// Format is the type of the two possible values of stacktrace.DefaultFormat.
+// Format is the type of the two possible values of Stacktrace.DefaultFormat.
 type Format int
 
 const (
-	// FormatFull means format as a full stacktrace including line number information.
+	// FormatFull means format as a full Stacktrace including line number information.
 	FormatFull Format = iota
 	// FormatBrief means Format on a single line without line number information.
 	FormatBrief
 )
 
-var _ fmt.Formatter = (*stacktrace)(nil)
+var _ fmt.Formatter = (*Stacktrace)(nil)
 
-func (st *stacktrace) Format(f fmt.State, c rune) {
+func (st *Stacktrace) Format(f fmt.State, c rune) {
 	var text string
 	if f.Flag('+') && !f.Flag('#') && c == 's' { // "%+s"
 		text = formatFull(st)
 	} else if f.Flag('#') && !f.Flag('+') && c == 's' { // "%#s"
 		text = formatBrief(st)
 	} else {
-		text = map[Format]func(*stacktrace) string{
+		text = map[Format]func(*Stacktrace) string{
 			FormatFull:  formatFull,
 			FormatBrief: formatBrief,
 		}[DefaultFormat](st)
@@ -75,7 +75,7 @@ func (st *stacktrace) Format(f fmt.State, c rune) {
 	fmt.Fprintf(f, formatString, text)
 }
 
-func formatFull(st *stacktrace) string {
+func formatFull(st *Stacktrace) string {
 	var str string
 	newline := func() {
 		if str != "" && !strings.HasSuffix(str, "\n") {
@@ -83,7 +83,7 @@ func formatFull(st *stacktrace) string {
 		}
 	}
 
-	for curr, ok := st, true; ok; curr, ok = curr.cause.(*stacktrace) {
+	for curr, ok := st, true; ok; curr, ok = curr.cause.(*Stacktrace) {
 		str += curr.message
 
 		if curr.file != "" {
@@ -97,7 +97,7 @@ func formatFull(st *stacktrace) string {
 
 		if curr.cause != nil {
 			newline()
-			if cause, ok := curr.cause.(*stacktrace); !ok {
+			if cause, ok := curr.cause.(*Stacktrace); !ok {
 				str += "Caused by: "
 				str += curr.cause.Error()
 			} else if cause.message != "" {
@@ -109,7 +109,7 @@ func formatFull(st *stacktrace) string {
 	return str
 }
 
-func formatBrief(st *stacktrace) string {
+func formatBrief(st *Stacktrace) string {
 	var str string
 	concat := func(msg string) {
 		if str != "" && msg != "" {
@@ -121,7 +121,7 @@ func formatBrief(st *stacktrace) string {
 	curr := st
 	for {
 		concat(curr.message)
-		if cause, ok := curr.cause.(*stacktrace); ok {
+		if cause, ok := curr.cause.(*Stacktrace); ok {
 			curr = cause
 		} else {
 			break

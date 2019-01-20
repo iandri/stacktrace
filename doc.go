@@ -13,10 +13,10 @@
 // limitations under the License.
 
 /*
-Package stacktrace provides functions for wrapping an error to include line
+Package Stacktrace provides functions for wrapping an error to include line
 number and/or error code information.
 
-A stacktrace produced by this package looks like this:
+A Stacktrace produced by this package looks like this:
 
 	Failed to register for villain discovery
 	 --- at github.com/palantir/shield/agent/discovery.go:265 (ShieldAgent.reallyRegister) ---
