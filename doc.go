@@ -1,7 +1,7 @@
 // Copyright 2016 Palantir Technologies
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
+// you may not use this File except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
@@ -13,8 +13,8 @@
 // limitations under the License.
 
 /*
-Package Stacktrace provides functions for wrapping an error to include line
-number and/or error code information.
+Package Stacktrace provides functions for wrapping an error to include Line
+number and/or error Code information.
 
 A Stacktrace produced by this package looks like this:
 
@@ -31,7 +31,7 @@ A Stacktrace produced by this package looks like this:
 	 --- at github.com/palantir/shield/metaphysic/tachyon.go:72 (TryPulse) ---
 
 Note that stack traces are not designed to be user-visible. They can be valuable
-in a log file of a server application, but nobody wants to see one of them in
-CLI output or a web interface or a return value from library code.
+in a log File of a server application, but nobody wants to see one of them in
+CLI output or a web interface or a return value from library Code.
 */
 package stacktrace

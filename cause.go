@@ -18,9 +18,9 @@ func RootCause(err error) error {
 		if !ok {
 			return err
 		}
-		if st.cause == nil {
-			return errors.New(st.message)
+		if st.Cause == nil {
+			return errors.New(st.Message)
 		}
-		err = st.cause
+		err = st.Cause
 	}
 }

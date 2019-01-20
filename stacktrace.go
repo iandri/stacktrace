@@ -1,7 +1,7 @@
 // Copyright 2016 Palantir Technologies
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
+// you may not use this File except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
@@ -24,10 +24,10 @@ import (
 )
 
 /*
-CleanPath function is applied to file paths before adding them to a Stacktrace.
+CleanPath Function is applied to File paths before adding them to a Stacktrace.
 By default, it makes the path relative to the $GOPATH environment variable.
 
-To remove some additional prefix like "github.com" from file paths in
+To remove some additional prefix like "github.com" from File paths in
 stacktraces, use something like:
 
 	Stacktrace.CleanPath = func(path string) string {
@@ -39,7 +39,7 @@ stacktraces, use something like:
 var CleanPath = cleanpath.RemoveGoPath
 
 /*
-NewError is a drop-in replacement for fmt.Errorf that includes line number
+NewError is a drop-in replacement for fmt.Errorf that includes Line number
 information. The canonical call looks like this:
 
 	if !IsOkay(arg) {
@@ -51,22 +51,22 @@ func NewError(msg string, vals ...interface{}) error {
 }
 
 /*
-Propagate wraps an error to include line number information. The msg and vals
+Propagate wraps an error to include Line number information. The msg and vals
 arguments work like the ones for fmt.Errorf.
 
-The message passed to Propagate should describe the action that failed,
-resulting in the cause. The canonical call looks like this:
+The Message passed to Propagate should describe the action that failed,
+resulting in the Cause. The canonical call looks like this:
 
 	result, err := process(arg)
 	if err != nil {
 		return nil, Stacktrace.Propagate(err, "Failed to process %v", arg)
 	}
 
-To write the message, ask yourself "what does this call do?" What does
-process(arg) do? It processes ${arg}, so the message is that we failed to
+To write the Message, ask yourself "what does this call do?" What does
+process(arg) do? It processes ${arg}, so the Message is that we failed to
 process ${arg}.
 
-Pay attention that the message is not redundant with the one in err. If it is
+Pay attention that the Message is not redundant with the one in err. If it is
 not possible to add any useful contextual information beyond what is already
 included in an error, msg can be an empty string:
 
@@ -78,7 +78,7 @@ included in an error, msg can be an empty string:
 		return Stacktrace.Propagate(err, "")
 	}
 
-If cause is nil, Propagate returns nil. This allows elision of some "if err !=
+If Cause is nil, Propagate returns nil. This allows elision of some "if err !=
 nil" checks.
 */
 func Propagate(cause error, msg string, vals ...interface{}) error {
@@ -90,7 +90,7 @@ func Propagate(cause error, msg string, vals ...interface{}) error {
 }
 
 /*
-ErrorCode is a code that can be attached to an error as it is passed/propagated
+ErrorCode is a Code that can be attached to an error as it is passed/propagated
 up the stack.
 
 There is no predefined set of error codes. You define the ones relevant to your
@@ -102,27 +102,27 @@ application:
 		EcodeTimeout
 	)
 
-The one predefined error code is NoCode, which has a value of math.MaxUint16.
-Avoid using that value as an error code.
+The one predefined error Code is NoCode, which has a value of math.MaxUint16.
+Avoid using that value as an error Code.
 
-An ordinary Stacktrace.Propagate call preserves the error code of an error.
+An ordinary Stacktrace.Propagate call preserves the error Code of an error.
 */
 type ErrorCode uint16
 
 /*
-NoCode is the error code of errors with no code explicitly attached.
+NoCode is the error Code of errors with no Code explicitly attached.
 */
 const NoCode ErrorCode = math.MaxUint16
 
 /*
-NewErrorWithCode is similar to NewError but also attaches an error code.
+NewErrorWithCode is similar to NewError but also attaches an error Code.
 */
 func NewErrorWithCode(code ErrorCode, msg string, vals ...interface{}) error {
 	return create(nil, code, msg, vals...)
 }
 
 /*
-PropagateWithCode is similar to Propagate but also attaches an error code.
+PropagateWithCode is similar to Propagate but also attaches an error Code.
 
 	_, err := os.Stat(manifestPath)
 	if os.IsNotExist(err) {
@@ -139,8 +139,8 @@ func PropagateWithCode(cause error, code ErrorCode, msg string, vals ...interfac
 
 /*
 NewMessageWithCode returns an error that prints just like fmt.Errorf with no
-line number, but including a code. The error code mechanism can be useful by
-itself even where stack traces with line numbers are not warranted.
+Line number, but including a Code. The error Code mechanism can be useful by
+itself even where stack traces with Line numbers are not warranted.
 
 	ttl := req.URL.Query().Get("ttl")
 	if ttl == "" {
@@ -149,13 +149,13 @@ itself even where stack traces with line numbers are not warranted.
 */
 func NewMessageWithCode(code ErrorCode, msg string, vals ...interface{}) error {
 	return &Stacktrace{
-		message: fmt.Sprintf(msg, vals...),
-		code:    code,
+		Message: fmt.Sprintf(msg, vals...),
+		Code:    code,
 	}
 }
 
 /*
-GetCode extracts the error code from an error.
+GetCode extracts the error Code from an error.
 
 	for i := 0; i < attempts; i++ {
 		err := Do()
@@ -167,44 +167,44 @@ GetCode extracts the error code from an error.
 	return Stacktrace.NewError("timed out after %d attempts", attempts)
 
 GetCode returns the special value Stacktrace.NoCode if err is nil or if there is
-no error code attached to err.
+no error Code attached to err.
 */
 func GetCode(err error) ErrorCode {
 	if err, ok := err.(*Stacktrace); ok {
-		return err.code
+		return err.Code
 	}
 	return NoCode
 }
 
 func GetCause(err error) error {
 	if err, ok := err.(*Stacktrace); ok {
-		return err.cause
+		return err.Cause
 	}
 	return err
 }
 
 type Stacktrace struct {
-	message  string
-	cause    error
-	code     ErrorCode
-	file     string
-	function string
-	line     int
+	Message  string
+	Cause    error
+	Code     ErrorCode
+	File     string
+	Function string
+	Line     int
 }
 
 func create(cause error, code ErrorCode, msg string, vals ...interface{}) error {
-	// If no error code specified, inherit error code from the cause.
+	// If no error Code specified, inherit error Code from the Cause.
 	if code == NoCode {
 		code = GetCode(cause)
 	}
 
 	err := &Stacktrace{
-		message: fmt.Sprintf(msg, vals...),
-		cause:   cause,
-		code:    code,
+		Message: fmt.Sprintf(msg, vals...),
+		Cause:   cause,
+		Code:    code,
 	}
 
-	// Caller of create is NewError or Propagate, so user's code is 2 up.
+	// Caller of create is NewError or Propagate, so user's Code is 2 up.
 	pc, file, line, ok := runtime.Caller(2)
 	if !ok {
 		return err
@@ -212,13 +212,13 @@ func create(cause error, code ErrorCode, msg string, vals ...interface{}) error 
 	if CleanPath != nil {
 		file = CleanPath(file)
 	}
-	err.file, err.line = file, line
+	err.File, err.Line = file, line
 
 	f := runtime.FuncForPC(pc)
 	if f == nil {
 		return err
 	}
-	err.function = shortFuncName(f)
+	err.Function = shortFuncName(f)
 
 	return err
 }
@@ -246,11 +246,11 @@ func (st *Stacktrace) Error() string {
 	return fmt.Sprint(st)
 }
 
-// ExitCode returns the exit code associated with the Stacktrace error based on its error code. If the error code is
-// NoCode, return 1 (default); otherwise, returns the value of the error code.
+// ExitCode returns the exit Code associated with the Stacktrace error based on its error Code. If the error Code is
+// NoCode, return 1 (default); otherwise, returns the value of the error Code.
 func (st *Stacktrace) ExitCode() int {
-	if st.code == NoCode {
+	if st.Code == NoCode {
 		return 1
 	}
-	return int(st.code)
+	return int(st.Code)
 }

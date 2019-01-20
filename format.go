@@ -1,7 +1,7 @@
 // Copyright 2016 Palantir Technologies
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
+// you may not use this File except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
@@ -22,8 +22,8 @@ import (
 /*
 DefaultFormat defines the behavior of err.Error() when called on a Stacktrace,
 as well as the default behavior of the "%v", "%s" and "%q" formatting
-specifiers. By default, all of these produce a full Stacktrace including line
-number information. To have them produce a condensed single-line output, set
+specifiers. By default, all of these produce a full Stacktrace including Line
+number information. To have them produce a condensed single-Line output, set
 this value to Stacktrace.FormatBrief.
 
 The formatting specifier "%+s" can be used to force a full Stacktrace regardless
@@ -36,9 +36,9 @@ var DefaultFormat = FormatFull
 type Format int
 
 const (
-	// FormatFull means format as a full Stacktrace including line number information.
+	// FormatFull means format as a full Stacktrace including Line number information.
 	FormatFull Format = iota
-	// FormatBrief means Format on a single line without line number information.
+	// FormatBrief means Format on a single Line without Line number information.
 	FormatBrief
 )
 
@@ -83,24 +83,24 @@ func formatFull(st *Stacktrace) string {
 		}
 	}
 
-	for curr, ok := st, true; ok; curr, ok = curr.cause.(*Stacktrace) {
-		str += curr.message
+	for curr, ok := st, true; ok; curr, ok = curr.Cause.(*Stacktrace) {
+		str += curr.Message
 
-		if curr.file != "" {
+		if curr.File != "" {
 			newline()
-			if curr.function == "" {
-				str += fmt.Sprintf(" --- at %v:%v ---", curr.file, curr.line)
+			if curr.Function == "" {
+				str += fmt.Sprintf(" --- at %v:%v ---", curr.File, curr.Line)
 			} else {
-				str += fmt.Sprintf(" --- at %v:%v (%v) ---", curr.file, curr.line, curr.function)
+				str += fmt.Sprintf(" --- at %v:%v (%v) ---", curr.File, curr.Line, curr.Function)
 			}
 		}
 
-		if curr.cause != nil {
+		if curr.Cause != nil {
 			newline()
-			if cause, ok := curr.cause.(*Stacktrace); !ok {
+			if cause, ok := curr.Cause.(*Stacktrace); !ok {
 				str += "Caused by: "
-				str += curr.cause.Error()
-			} else if cause.message != "" {
+				str += curr.Cause.Error()
+			} else if cause.Message != "" {
 				str += "Caused by: "
 			}
 		}
@@ -120,15 +120,15 @@ func formatBrief(st *Stacktrace) string {
 
 	curr := st
 	for {
-		concat(curr.message)
-		if cause, ok := curr.cause.(*Stacktrace); ok {
+		concat(curr.Message)
+		if cause, ok := curr.Cause.(*Stacktrace); ok {
 			curr = cause
 		} else {
 			break
 		}
 	}
-	if curr.cause != nil {
-		concat(curr.cause.Error())
+	if curr.Cause != nil {
+		concat(curr.Cause.Error())
 	}
 	return str
 }
